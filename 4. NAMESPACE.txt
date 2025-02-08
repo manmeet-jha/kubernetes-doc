@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: my-new-namespace  # Replace with your desired namespace name
+  labels: # Optional labels for the namespace
+    environment: development
+    team: frontend
+
+#COMMAND FOR CREATING NAMESPACE USING YML FILE:
+kubectl apply -f namespace.yaml
+kubectl get namespaces
+
+#Create namespace using COMMAND:
+kubectl Create ns nginx

@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  namespace: nginx
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+ 
+ # This is the strategy of the deployment (optional)
+ strategy:  
+      type: RollingUpdate
+      rollingUpdate:
+        maxUnavailable: 1
+         maxSurge: 1
+
+
+
+
+apiVersion: apps/v1   # This is the API version
+kind: Deployment   # This is the kind of resource
+metadata:   # This is the metadata of the resource
+  name: nginx-deployment   # This is the name of the deployment
+  namespace: nginx   # This is the namespace where the deployment will be created
+  labels:   # This is the labels of the deployment
+    app: nginx   # This is the label of the deployment
+spec:   # This is the specification of the deployment
+  replicas: 3   # This is the number of replicas of the deployment
+  selector:   # This is the selector of the deployment
+    matchLabels:   # This is the matchLabels of the deployment
+      app: nginx   # This is the app label of the deployment
+  template:   # This is the template of the deployment
+    metadata:   # This is the metadata of the template
+      labels:   # This is the labels of the template
+        app: nginx   # This is the app label of the template
+    spec:   # This is the specification of the template
+      containers:   # This is the list of containers in the template
+      - name: nginx   # This is the name of the container
+        image: nginx:latest   # This is the image of the container
+        ports:   # This is the list of ports that the container will expose
+        - containerPort: 80   # This is the port that the container will expose

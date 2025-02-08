@@ -1,0 +1,57 @@
+What is Pods?
+Pods are the smallest deployable units of computing that you can create and manage in Kubernetes.
+A Pod (as in a pod of whales or pea pod) is a group of one or more containers, with shared storage and network resources, and a specification for how to run the containers. 
+
+Pods in a Kubernetes cluster are used in two main ways:
+Pods that run a single container. 
+Pods that run multiple containers that need to work together.
+
+
+
+
+kind: Pod
+apiVersion: v1
+metadata:
+  name: my-pod  # Replace with a unique name for your Pod
+  labels:
+    app: my-app  # Add labels for organization and selection
+spec:
+  containers:
+  - name: my-container  # Name of the container
+    image: nginx:latest  # Replace with the image you want to use
+    ports:
+    - containerPort: 80  # Expose the container port (if needed)
+    resources:  # Define resource requests and limits (optional but recommended)
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 200m
+        memory: 512Mi
+    volumeMounts: # Mount volumes into the container (if needed)
+    - name: my-volume
+      mountPath: /data
+  volumes: # Define volumes used by the pod (if needed)
+  - name: my-volume
+    emptyDir: {} # Example: emptyDir volume (data is lost when pod is deleted)
+  nodeSelector: # Specify which nodes the pod can run on (optional)
+    disktype: ssd
+  tolerations: # Add tolerations for taints on nodes (optional)
+  - key: "example.com/critical-workload"
+    operator: "Exists"
+    effect: "NoSchedule"
+  restartPolicy: Always # Define restart policy (Always, OnFailure, Never)
+
+
+
+kubectl apply -f my-pod.yaml
+kubectl get pods
+kubectl delete -f my-pod.yaml
+
+#To get into pod:
+kubectl exec -it pod/{podname} -n {namespace} -- bash
+exit	//for exit from pod
+
+#To see the details of pod:
+kubectl describe pod/{podname} -n {namespace}
+

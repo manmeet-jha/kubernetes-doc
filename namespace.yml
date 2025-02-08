@@ -1,0 +1,4 @@
+apiVersion: v1  # This is the API version
+kind: Namespace # This is the kind of resource
+metadata: # This is the metadata of the resource
+  name: nginx # This is the name of the namespace

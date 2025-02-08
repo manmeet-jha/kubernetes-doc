@@ -1,0 +1,125 @@
+What is Deployment in Kubernetes?
+A Deployment manages a set of Pods to run an application workload, usually one that doesn't maintain state.
+A Deployment provides declarative updates for Pods and ReplicaSets.
+You describe a desired state in a Deployment, and the Deployment Controller changes the actual state to the desired state at a controlled rate. You can define Deployments to create new ReplicaSets, or to remove existing Deployments and adopt all their resources with new Deployments.
+
+
+Replicaset vs Stateful vs Deployment
+Replicaset:
+ReplicaSets ensure that a specified number of identical pods are running at all times. replicaset use for stateless application, where the order and identity of the pods don't matter. ReplicaSets don't provide any guarantees about the order of pod creation or deletion. They don't provide persistent storage for the pods.
+   
+Statefullset:
+StatefulSets are used for stateful applications, where the order and identity of the pods matter.StatefulSets provide each pod with a unique, persistent identifier and a persistent volume. StatefulSets guarantee the order of pod creation and deletion. They ensure that each pod is assigned a unique network identity that is preserved across restarts. It provide persistent storage for each pod.
+
+Deployment:
+Deployments are the most advanced of the three, and they are typically used for stateless applications. Deployments can be used to perform rolling updates, rollbacks, and blue/green deployments. Deployments can be used to scale applications up or down. it doesn't provide persistent storage by default.
+
+   
+#Labels and selectors:
+labels: labels are use to provide a identity to a pod 
+Selectors: selectors are use to select that identity of a pod, which is feather use in deployment for matching labels as apps name and if label app name and selector app name is match then it will create replicas.
+
+#Basic deploymemnt .yml file:
+apiVersion: apps/v1   		# This is the API version
+kind: Deployment   		# This is the kind of resource
+metadata:   			# This is the metadata of the resource
+  name: nginx-deployment   	# This is the name of the deployment
+  namespace: nginx   		# This is the namespace where the deployment will be created
+  labels:   			# This is the labels of the deployment
+    app: nginx   		# This is the label of the deployment
+spec:   			# This is the specification of the deployment
+  replicas: 3   		# This is the number of replicas of the deployment
+  selector:   			# This is the selector of the deployment
+    matchLabels:   		# This is the matchLabels of the deployment
+      app: nginx   		# This is the app label of the deployment
+  template:   			# This is the template of the deployment
+    metadata:   		# This is the metadata of the template
+      labels:   		# This is the labels of the template
+        app: nginx   		# This is the app label of the template
+    spec:   			# This is the specification of the template
+      containers:   		# This is the list of containers in the template
+      - name: nginx   		# This is the name of the container
+        image: nginx:latest     # This is the image of the container
+        ports:   		# This is the list of ports that the container will expose
+        - containerPort: 80   	# This is the port that the container will expose
+
+--------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------
+
+#Advance Deployment .yml code:
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app-deployment
+spec:
+  replicas: 3 # Number of pod replicas
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+        - name: my-app-container
+          image: <your-image-name>:<tag> # Replace with your image and tag
+          ports:
+            - containerPort: 8080 # Port your application listens on
+          resources: # Resource requests and limits (optional but recommended)
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          env: # Environment variables (optional)
+            - name: MY_VARIABLE
+              value: "my-value"
+          volumeMounts: # Volume mounts (if needed)
+            - name: my-volume
+              mountPath: /data
+      volumes: # Define volumes (if needed)
+        - name: my-volume
+          emptyDir: {} # Example: emptyDir volume
+      imagePullSecrets: # Secrets for private registries (if needed)
+        - name: my-registry-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-app-service
+spec:
+  selector:
+    app: my-app
+  ports:
+    - protocol: TCP
+      port: 80 # External port
+      targetPort: 8080 # Container port
+  type: LoadBalancer # Expose the service externally (other options: ClusterIP, NodePort)
+
+-----------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------
+#command to deploy the deployment using .yml file:
+kubectl apply -f deployment.yml
+#command to check the deployment:
+kubectl get deployment -n {namespace}
+#command to see the running pod which created using deployment:
+kubectl get pod -n nginx
+#command to see the running pod which created using deployment with details like which pod running on which nodes:
+kubectl get pod -n nginx -o wide
+#command to scale the pod:
+kubectl scale deployment/nginx-deployment -n nginx --replicas=10
+#command to delete the deployment:
+kubectl delete deployment/{deployment_name} -n {name_space}
+
+
+What is rolling update in deployment?
+Rolling updates are a crucial feature in Kubernetes Deployments, allowing you to update your application with minimal downtime.  Instead of taking your entire application down and bringing it back up with the new version, a rolling update gradually replaces old Pods with new Pods, one at a time or in batches.  This keeps a portion of your application running and available to users throughout the update process.
+
+#To update image version in existing pod:
+kubectl set image deployment/{deployment_name} -n {name_space} {container_name}=new image version
+
+#To monitor the rollout status
+kubectl rollout status deployment/{deployment_name} -n {name_space}
+kubectl get pods -n {name_space}
